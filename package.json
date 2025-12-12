@@ -1,0 +1,16 @@
+{
+  "name": "holiday-2025",
+  "version": "1.0.0",
+  "description": "Interactive holiday card - The Cats Keep Interrupting",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "kill": "lsof -ti:5173 | xargs kill -9 2>/dev/null || true",
+    "restart": "npm run kill && npm run dev"
+  },
+  "devDependencies": {
+    "vite": "^7.2.7"
+  }
+}

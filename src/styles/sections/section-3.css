@@ -1,0 +1,45 @@
+/* ==============================================
+   SECTION 3: BODY 2
+   "We got a little weird..."
+   Cat Interaction: Sleeping cat in corner
+   ============================================== */
+
+[data-section="3"] .section-title {
+  color: var(--color-accent-primary);
+}
+
+/* --------------------------------------------
+   CAT POSITIONING
+   Sleeping cat curled up in bottom-left
+   -------------------------------------------- */
+
+[data-section="3"] .cat-container {
+  bottom: 0;
+  left: 0;
+}
+
+[data-section="3"] .cat {
+  max-width: var(--cat-size-medium);
+  opacity: 0;
+  transform: scale(0.8) rotate(-10deg);
+}
+
+/* --------------------------------------------
+   ANIMATIONS
+   Cat fades in gently, already asleep
+   -------------------------------------------- */
+
+[data-section="3"] .cat-container.is-visible .cat {
+  animation: s3-fadeInSleepy 1.2s var(--timing-gentle-easing) 0.3s forwards;
+}
+
+@keyframes s3-fadeInSleepy {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) rotate(-10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-5deg);
+  }
+}

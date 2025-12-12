@@ -1,0 +1,300 @@
+/* ==============================================
+   LAYOUT - Scroll Snap & Section Structure
+   ============================================== */
+
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text);
+  background-color: var(--color-background);
+}
+
+/* ==============================================
+   SECTION BASE STYLES
+   Every section follows this structure:
+   - Title (fixed)
+   - Scrapbook/photos (flexible, constrained)
+   - Body text (fixed)
+   - Cat stage (absolute overlay for animations)
+   ============================================== */
+
+.card-section {
+  /* Full viewport height with iOS Safari fix */
+  height: 100vh;
+  height: 100dvh;
+
+  /* Scroll snap behavior */
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--section-padding);
+
+  /* Positioning context - origin point for cat-stage */
+  position: relative;
+
+  /* Allow horizontal overflow for cat entrances, clip vertical */
+  overflow-x: clip;
+  overflow-y: hidden;
+
+  /* Default background */
+  background-color: var(--color-background);
+}
+
+/* Alternate section backgrounds for visual rhythm */
+.card-section:nth-child(even) {
+  background-color: var(--color-background-alt);
+}
+
+/* ==============================================
+   SECTION CONTENT
+   Simple flex column: title, photos, body text
+   Each takes its natural height, no overlap possible
+   ============================================== */
+
+.section-content {
+  max-width: var(--section-max-width);
+  width: 100%;
+  z-index: 2;
+  text-align: center;
+
+  /* Simple flex column - items stack, no overlap */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+
+  /* Fit within viewport minus padding */
+  height: calc(100vh - var(--section-padding) * 2);
+  height: calc(100dvh - var(--section-padding) * 2);
+}
+
+.section-title {
+  /* Fixed height slot - never shrinks */
+  flex-shrink: 0;
+
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-title);
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+}
+
+.section-subtitle {
+  flex-shrink: 0;
+
+  font-size: var(--font-size-subtitle);
+  color: var(--color-text-muted);
+}
+
+.section-body {
+  /* Fixed height - stays at bottom, never shrinks */
+  flex-shrink: 0;
+  margin-top: auto;
+
+  font-size: var(--font-size-large);
+  color: var(--color-text);
+}
+
+.section-body p {
+  margin-bottom: var(--spacing-sm);
+}
+
+.section-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* ==============================================
+   SCRAPBOOK COLLAGE
+   Grid layout for multiple images per section
+
+   Key insight: The scrapbook must CONTAIN itself within
+   the flex slot. We use explicit percentage-based rows
+   so the grid never exceeds its container.
+   ============================================== */
+
+.scrapbook {
+  /* Take remaining space between title and body text */
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+
+  /* Grid layout - container provides the size constraint */
+  display: grid;
+  gap: var(--spacing-sm);
+
+  /* Default: 2 columns */
+  grid-template-columns: 1fr 1fr;
+  /* Rows split the available height - % of the scrapbook container */
+  grid-template-rows: 1fr 1fr;
+}
+
+/* Photo styling within scrapbook */
+.scrapbook-photo {
+  width: 100%;
+  height: 100%;
+  min-height: 0; /* Critical: allows shrinking below content size */
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: var(--shadow-medium);
+
+  /* Slight rotation for handmade feel */
+  transition: transform 0.3s ease;
+}
+
+/* Rotation variations - applied via classes */
+.scrapbook-photo.rotate-cw-1 { transform: rotate(1.5deg); }
+.scrapbook-photo.rotate-cw-2 { transform: rotate(2.5deg); }
+.scrapbook-photo.rotate-ccw-1 { transform: rotate(-1.5deg); }
+.scrapbook-photo.rotate-ccw-2 { transform: rotate(-2deg); }
+
+/* Hero photo - spans multiple cells */
+.scrapbook-photo.hero {
+  grid-column: span 2;
+}
+
+/* Tall photo - for portraits */
+.scrapbook-photo.tall {
+  grid-row: span 2;
+}
+
+/* Layout variants - rows use fr units within the constrained container */
+
+/* 1 hero + 2 small below (hero gets 2/3 height) */
+.scrapbook.layout-hero-top {
+  grid-template-rows: 2fr 1fr;
+}
+
+/* 2 small on top + 1 hero below */
+.scrapbook.layout-hero-bottom {
+  grid-template-rows: 1fr 2fr;
+}
+
+/* 1 tall left + 2 stacked right */
+.scrapbook.layout-tall-left {
+  grid-template-columns: 1.2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+/* 2 stacked left + 1 tall right */
+.scrapbook.layout-tall-right {
+  grid-template-columns: 1fr 1.2fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+/* 3 photos in a row */
+.scrapbook.layout-trio {
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+/* Wrapper for images that need cat overlays */
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.image-wrapper .scrapbook-photo {
+  width: 100%;
+  height: 100%;
+}
+
+/* ==============================================
+   SINGLE IMAGE FALLBACK
+   For sections that just need one image
+   ============================================== */
+
+.section-image {
+  flex: 1 1 auto;
+  min-height: 0;
+
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
+  margin: var(--spacing-md) 0;
+  border-radius: 8px;
+  box-shadow: var(--shadow-medium);
+  object-fit: contain;
+}
+
+/* ==============================================
+   CAT STAGE
+   Absolute overlay layer for all cat animations.
+   Constrained to content width so cats don't fly
+   across the entire viewport on wide screens.
+   ============================================== */
+
+.cat-stage {
+  position: absolute;
+  /* Center the stage and match content width */
+  top: var(--section-padding);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(var(--section-max-width), calc(100% - var(--section-padding) * 2));
+  height: calc(100% - var(--section-padding) * 2);
+  pointer-events: none;
+  z-index: 10;
+  /* Cats can move outside this area without clipping */
+  overflow: visible;
+}
+
+.cat-container {
+  position: absolute;
+  pointer-events: none;
+}
+
+.cat {
+  max-width: var(--cat-size-medium);
+  height: auto;
+
+  /* Initial hidden state - section CSS overrides */
+  opacity: 0;
+}
+
+/* Placeholder for cat images during development */
+.cat-placeholder {
+  width: var(--cat-size-medium);
+  height: var(--cat-size-medium);
+  background-color: #FFE4C4;
+  border: 3px dashed var(--color-accent-secondary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+/* ==============================================
+   RESPONSIVE ADJUSTMENTS
+   iPhone SE (375px) as minimum
+   ============================================== */
+
+@media (max-width: 400px) {
+  :root {
+    --section-padding: 1rem;
+    --cat-size-small: 60px;
+    --cat-size-medium: 100px;
+    --cat-size-large: 140px;
+  }
+
+  .section-title {
+    font-size: clamp(1.75rem, 8vw, 2.5rem);
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --section-padding: 3rem;
+    --section-max-width: 700px;
+  }
+}

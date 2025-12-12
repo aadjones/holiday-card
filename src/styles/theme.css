@@ -1,0 +1,68 @@
+/* ==============================================
+   THEME CONFIGURATION
+   Change these values to retheme the entire site
+   ============================================== */
+
+:root {
+  /* --------------------------------------------
+     COLOR PALETTE
+     Cozy holiday theme - warm, inviting, readable
+     -------------------------------------------- */
+  --color-background: #FAF7F2;      /* Warm off-white */
+  --color-background-alt: #F0EBE3;  /* Slightly darker for contrast */
+  --color-text: #2C2C2C;            /* Soft black, easier on eyes */
+  --color-text-muted: #5C5C5C;      /* Secondary text */
+  --color-accent-primary: #4A6741;  /* Forest green - holiday feel */
+  --color-accent-secondary: #8B3A3A;/* Deep red - warm accent */
+
+  /* --------------------------------------------
+     TYPOGRAPHY
+     -------------------------------------------- */
+  --font-family-base: 'Georgia', 'Times New Roman', serif;
+  --font-family-display: 'Georgia', 'Times New Roman', serif;
+
+  --font-size-base: 1rem;
+  --font-size-small: 0.875rem;
+  --font-size-large: 1.25rem;
+  --font-size-title: clamp(2rem, 5vw, 3.5rem);
+  --font-size-subtitle: clamp(1.25rem, 3vw, 1.75rem);
+
+  --line-height-base: 1.6;
+  --line-height-tight: 1.2;
+
+  /* --------------------------------------------
+     SPACING
+     -------------------------------------------- */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+
+  --section-padding: var(--spacing-lg);
+  --section-max-width: 600px;
+
+  /* --------------------------------------------
+     ANIMATION TIMING
+     Global control for all cat animations
+     -------------------------------------------- */
+  --timing-cat-duration: 1.2s;
+  --timing-cat-delay: 0.3s;
+  --timing-cat-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Gentler easing for subtle movements */
+  --timing-gentle-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --------------------------------------------
+     CAT SIZING
+     -------------------------------------------- */
+  --cat-size-small: 80px;
+  --cat-size-medium: 120px;
+  --cat-size-large: 180px;
+
+  /* --------------------------------------------
+     SHADOWS & EFFECTS
+     -------------------------------------------- */
+  --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+}

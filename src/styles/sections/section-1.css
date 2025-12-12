@@ -1,0 +1,47 @@
+/* ==============================================
+   SECTION 1: INTRO
+   "How was our 2025?"
+   Cat Interaction: Walks across bottom
+   ============================================== */
+
+[data-section="1"] .section-title {
+  color: var(--color-accent-primary);
+}
+
+/* --------------------------------------------
+   CAT POSITIONING
+   Cat walks across bottom of content area
+   -------------------------------------------- */
+
+[data-section="1"] .cat-container {
+  bottom: 1rem;
+  left: -80px;
+}
+
+[data-section="1"] .cat {
+  max-width: var(--cat-size-small);
+  opacity: 0;
+}
+
+/* --------------------------------------------
+   ANIMATION
+   Cat walks across the bottom
+   -------------------------------------------- */
+
+[data-section="1"] .cat-container.is-visible .cat {
+  animation: s1-walkAcross 3s linear 0.5s forwards;
+}
+
+@keyframes s1-walkAcross {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(calc(100% + 160px));
+  }
+}
