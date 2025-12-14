@@ -288,25 +288,80 @@ function bindImageButtons() {
   });
 }
 
+// Image compression settings
+const MAX_IMAGE_WIDTH = 1200;
+const MAX_IMAGE_HEIGHT = 1200;
+const IMAGE_QUALITY = 0.8;
+
 /**
- * Handle image file upload - convert to data URL for preview
+ * Compress an image file using canvas
+ * Returns a promise that resolves to a data URL
  */
-function handleImageUpload(e) {
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target.result;
+    };
+
+    img.onload = () => {
+      // Calculate new dimensions
+      let { width, height } = img;
+
+      if (width > MAX_IMAGE_WIDTH) {
+        height = (height * MAX_IMAGE_WIDTH) / width;
+        width = MAX_IMAGE_WIDTH;
+      }
+      if (height > MAX_IMAGE_HEIGHT) {
+        width = (width * MAX_IMAGE_HEIGHT) / height;
+        height = MAX_IMAGE_HEIGHT;
+      }
+
+      // Draw to canvas
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Convert to JPEG for better compression
+      const dataUrl = canvas.toDataURL('image/jpeg', IMAGE_QUALITY);
+      resolve(dataUrl);
+    };
+
+    img.onerror = reject;
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Handle image file upload - compress and convert to data URL
+ */
+async function handleImageUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
 
   const sectionIndex = parseInt(e.target.dataset.section, 10);
   const imageIndex = parseInt(e.target.dataset.image, 10);
+  const picker = e.target.closest('.image-picker');
 
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const dataUrl = event.target.result;
+  try {
+    // Show loading state
+    if (picker) {
+      picker.querySelector('.image-picker-label').textContent = '...';
+    }
+
+    // Compress the image
+    const dataUrl = await compressImage(file);
 
     // Update config
     currentConfig.sections[sectionIndex].images[imageIndex].src = dataUrl;
 
     // Update the picker thumbnail
-    const picker = e.target.closest('.image-picker');
     if (picker) {
       picker.style.backgroundImage = `url('${dataUrl}')`;
       picker.classList.add('has-image');
@@ -314,8 +369,13 @@ function handleImageUpload(e) {
     }
 
     updatePreview();
-  };
-  reader.readAsDataURL(file);
+  } catch (err) {
+    console.error('Image compression failed:', err);
+    alert('Failed to process image. Please try a different file.');
+    if (picker) {
+      picker.querySelector('.image-picker-label').textContent = '+ Image';
+    }
+  }
 }
 
 /**
@@ -402,6 +462,14 @@ function bindAudioControls() {
   const fileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    // Check audio file size (limit to 5MB)
+    const fileSizeMB = file.size / (1024 * 1024);
+    if (fileSizeMB > 5) {
+      alert(`Audio file is too large (${fileSizeMB.toFixed(1)}MB).\n\nPlease use an audio file smaller than 5MB.`);
+      e.target.value = '';
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = (event) => {
