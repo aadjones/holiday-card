@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Card Builder - Holiday 2025</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/src/styles/reset.css" />
+    <link rel="stylesheet" href="/src/styles/theme.css" />
+    <link rel="stylesheet" href="/src/styles/builder.css" />
+  </head>
+  <body>
+    <div class="builder-layout">
+      <!-- Left Panel: Form Controls -->
+      <aside class="builder-panel">
+        <header class="builder-header">
+          <h1>Card Builder</h1>
+          <p class="builder-subtitle">Prototype your holiday card</p>
+        </header>
+
+        <form id="builder-form">
+          <!-- Intro Section -->
+          <fieldset class="builder-fieldset">
+            <legend>Intro Screen</legend>
+            <label>
+              Year
+              <input type="text" name="intro.year" value="2025" />
+            </label>
+            <label>
+              Title
+              <input type="text" name="intro.title" value="Happy Holidays" />
+            </label>
+            <label>
+              From Line
+              <input type="text" name="intro.from" value="from Anakaren & Aaron" />
+            </label>
+          </fieldset>
+
+          <!-- Sections -->
+          <div id="sections-container"></div>
+
+          <button type="button" id="add-section-btn" class="btn btn-secondary">
+            + Add Section
+          </button>
+        </form>
+
+        <footer class="builder-footer">
+          <button type="button" id="preview-btn" class="btn btn-primary">
+            Update Preview
+          </button>
+          <button type="button" id="export-btn" class="btn btn-secondary">
+            Export Config
+          </button>
+        </footer>
+      </aside>
+
+      <!-- Right Panel: Live Preview -->
+      <main class="builder-preview">
+        <div class="preview-frame">
+          <iframe id="preview-iframe" src="about:blank"></iframe>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="/src/builder.js"></script>
+  </body>
+</html>

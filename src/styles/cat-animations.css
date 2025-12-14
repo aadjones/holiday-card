@@ -1,0 +1,173 @@
+/* ==============================================
+   CAT ANIMATIONS
+   Reusable cat animation presets for the card builder.
+   These use [data-cat-animation] selectors so they work
+   regardless of which section they appear in.
+   ============================================== */
+
+/* ==============================================
+   WALK ACROSS
+   Cat walks across the bottom of the section
+   ============================================== */
+
+[data-cat-animation="walk-across"] .cat-container {
+  bottom: 1rem;
+  left: -80px;
+}
+
+[data-cat-animation="walk-across"] .cat {
+  max-width: var(--cat-size-small);
+  opacity: 0;
+}
+
+[data-cat-animation="walk-across"] .cat-container.is-visible .cat {
+  animation: cat-walkAcross 3s linear 0.5s forwards;
+}
+
+@keyframes cat-walkAcross {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(calc(100% + 160px));
+  }
+}
+
+/* ==============================================
+   PEEK CORNER
+   Cat peeks in from bottom-right corner
+   ============================================== */
+
+[data-cat-animation="peek-corner"] .cat-container {
+  bottom: 0;
+  right: 0;
+}
+
+[data-cat-animation="peek-corner"] .cat {
+  max-width: var(--cat-size-medium);
+  opacity: 0;
+  transform: translate(50%, 50%);
+}
+
+[data-cat-animation="peek-corner"] .cat-container.is-visible .cat {
+  animation: cat-peekIn 1s var(--timing-cat-easing) 0.5s forwards;
+}
+
+@keyframes cat-peekIn {
+  0% {
+    opacity: 0;
+    transform: translate(50%, 50%);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+/* ==============================================
+   SLEEP CORNER
+   Cat sleeping in bottom-left corner
+   ============================================== */
+
+[data-cat-animation="sleep-corner"] .cat-container {
+  bottom: 0;
+  left: 0;
+}
+
+[data-cat-animation="sleep-corner"] .cat {
+  max-width: var(--cat-size-medium);
+  opacity: 0;
+  transform: scale(0.8) rotate(-10deg);
+}
+
+[data-cat-animation="sleep-corner"] .cat-container.is-visible .cat {
+  animation: cat-fadeInSleepy 1.2s var(--timing-gentle-easing) 0.3s forwards;
+}
+
+@keyframes cat-fadeInSleepy {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) rotate(-10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-5deg);
+  }
+}
+
+/* ==============================================
+   POP UP
+   Cat pops up from bottom-right
+   ============================================== */
+
+[data-cat-animation="pop-up"] .cat-container {
+  bottom: 0;
+  right: 1rem;
+}
+
+[data-cat-animation="pop-up"] .cat {
+  max-width: var(--cat-size-medium);
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+}
+
+[data-cat-animation="pop-up"] .cat-container.is-visible .cat {
+  animation: cat-popUp 0.8s var(--timing-cat-easing) 0.5s forwards;
+}
+
+@keyframes cat-popUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==============================================
+   BOTH CATS
+   Both cats rise up from center bottom
+   ============================================== */
+
+[data-cat-animation="both-cats"] .cat-container {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+[data-cat-animation="both-cats"] .cat {
+  max-width: var(--cat-size-large);
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+[data-cat-animation="both-cats"] .cat-container.is-visible .cat {
+  animation: cat-riseUp 1s var(--timing-cat-easing) 0.4s forwards;
+}
+
+@keyframes cat-riseUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==============================================
+   NONE
+   No cat animation - hide the cat stage
+   ============================================== */
+
+[data-cat-animation="none"] .cat-stage {
+  display: none;
+}

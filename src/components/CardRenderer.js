@@ -1,0 +1,234 @@
+/**
+ * CardRenderer
+ *
+ * Takes a card config object and renders the complete card HTML.
+ * Used by both the main site and the builder preview.
+ *
+ * Returns an object with:
+ *   - html: The rendered HTML string
+ *   - init: Function to call after inserting HTML (sets up audio, observers)
+ *   - cleanup: Function to call before removing (stops audio, disconnects observers)
+ */
+
+/**
+ * Render the complete card from config
+ * @param {Object} config - The card configuration object
+ * @returns {Object} { html, init, cleanup }
+ */
+export function renderCard(config) {
+  const html = `
+    ${renderIntroOverlay(config.intro)}
+    ${config.sections.map((section, index) => renderSection(section, index)).join('\n')}
+  `;
+
+  let audio = null;
+  let sectionObserver = null;
+  let hasEntered = false;
+
+  function init(container) {
+    // Set up audio
+    if (config.audio?.src) {
+      audio = new Audio(config.audio.src);
+      audio.loop = true;
+      audio.volume = config.audio.volume ?? 0.4;
+      audio.preload = 'auto';
+    }
+
+    // Set up intro overlay interaction
+    const overlay = container.querySelector('#intro-overlay');
+    if (overlay) {
+      const body = document.body;
+      body.classList.add('intro-active');
+
+      const enterSite = (e) => {
+        if (hasEntered) return;
+        hasEntered = true;
+        e.preventDefault();
+
+        if (audio) {
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise.catch((err) => console.log('Audio play failed:', err));
+          }
+        }
+
+        overlay.classList.add('hidden');
+        body.classList.remove('intro-active');
+      };
+
+      overlay.addEventListener('touchend', enterSite);
+      overlay.addEventListener('click', enterSite);
+    }
+
+    // Set up cat animation observers
+    const observerOptions = {
+      root: null,
+      rootMargin: '-10% 0px -10% 0px',
+      threshold: 0.5
+    };
+
+    sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        const section = entry.target;
+        const catTrigger = section.querySelector('[data-cat-trigger]');
+
+        if (catTrigger) {
+          catTrigger.classList.add('is-visible');
+          section.classList.add('cat-active');
+        }
+      });
+    }, observerOptions);
+
+    const sections = container.querySelectorAll('.card-section');
+    sections.forEach(section => sectionObserver.observe(section));
+
+    // Set up scroll hint
+    const scrollHint = container.querySelector('#scroll-hint');
+    if (scrollHint) {
+      const hideScrollHint = () => {
+        scrollHint.classList.add('hidden');
+        window.removeEventListener('scroll', hideScrollHint);
+      };
+      window.addEventListener('scroll', hideScrollHint, { once: true });
+    }
+  }
+
+  function cleanup() {
+    if (audio) {
+      audio.pause();
+      audio.src = '';
+      audio = null;
+    }
+    if (sectionObserver) {
+      sectionObserver.disconnect();
+      sectionObserver = null;
+    }
+    hasEntered = false;
+  }
+
+  return { html, init, cleanup };
+}
+
+/**
+ * Render the intro overlay
+ */
+function renderIntroOverlay(intro) {
+  return `
+    <div id="intro-overlay">
+      <div class="intro-content">
+        <p class="intro-year">${escapeHtml(intro.year)}</p>
+        <h1 class="intro-title">${escapeHtml(intro.title)}</h1>
+        <p class="intro-from">${escapeHtml(intro.from)}</p>
+        <p class="intro-tap">${escapeHtml(intro.tapPrompt || 'tap to enter')}</p>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Render a single section
+ */
+function renderSection(section, index) {
+  const sectionNum = index + 1;
+  const catAnimation = section.catAnimation || 'none';
+
+  return `
+    <section
+      class="card-section"
+      data-section="${sectionNum}"
+      data-cat-animation="${catAnimation}"
+    >
+      ${renderCatStage(section)}
+      <div class="section-content">
+        <h${sectionNum === 1 ? '1' : '2'} class="section-title">${escapeHtml(section.title)}</h${sectionNum === 1 ? '1' : '2'}>
+        ${renderImages(section)}
+        ${section.body ? `<div class="section-body"><p>${escapeHtml(section.body)}</p></div>` : ''}
+      </div>
+      ${section.showScrollHint ? renderScrollHint() : ''}
+    </section>
+  `;
+}
+
+/**
+ * Render the cat stage for a section
+ */
+function renderCatStage(section) {
+  if (!section.catImage || section.catAnimation === 'none') {
+    return '';
+  }
+
+  return `
+    <div class="cat-stage">
+      <div class="cat-container" data-cat-trigger>
+        <img src="${escapeHtml(section.catImage)}" alt="" class="cat" />
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Render images for a section
+ */
+function renderImages(section) {
+  if (!section.images || section.images.length === 0) {
+    return '';
+  }
+
+  // Single image layout
+  if (section.layout === 'single' || section.images.length === 1) {
+    const img = section.images[0];
+    return `
+      <img
+        src="${escapeHtml(img.src)}"
+        alt="${escapeHtml(img.alt || '')}"
+        class="section-image"
+      />
+    `;
+  }
+
+  // Scrapbook layout
+  const layoutClass = section.layout ? `layout-${section.layout}` : '';
+
+  const photos = section.images.map(img => {
+    const classes = ['scrapbook-photo'];
+    if (img.span) classes.push(img.span);
+    if (img.rotation) classes.push(`rotate-${img.rotation}`);
+
+    return `
+      <img
+        src="${escapeHtml(img.src)}"
+        alt="${escapeHtml(img.alt || '')}"
+        class="${classes.join(' ')}"
+      />
+    `;
+  }).join('\n');
+
+  return `
+    <div class="scrapbook ${layoutClass}">
+      ${photos}
+    </div>
+  `;
+}
+
+/**
+ * Render the scroll hint
+ */
+function renderScrollHint() {
+  return `
+    <div class="scroll-hint" id="scroll-hint">
+      <span class="scroll-hint-arrow">&#8595;</span>
+    </div>
+  `;
+}
+
+/**
+ * Escape HTML to prevent XSS
+ */
+function escapeHtml(text) {
+  if (text === null || text === undefined) return '';
+  const div = document.createElement('div');
+  div.textContent = String(text);
+  return div.innerHTML;
+}

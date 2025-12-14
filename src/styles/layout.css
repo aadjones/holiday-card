@@ -15,6 +15,111 @@ body {
   background-color: var(--color-background);
 }
 
+/* Prevent scrolling while intro overlay is visible */
+body.intro-active {
+  overflow: hidden;
+}
+
+/* ==============================================
+   INTRO OVERLAY
+   Full-screen tap-to-enter splash
+   ============================================== */
+
+#intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background-color: var(--color-background);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+#intro-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.intro-content {
+  text-align: center;
+}
+
+.intro-year {
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  color: var(--color-text-muted);
+  letter-spacing: 0.2em;
+  margin-bottom: var(--spacing-sm);
+}
+
+.intro-title {
+  font-family: var(--font-family-display);
+  font-size: clamp(2.5rem, 10vw, 5rem);
+  line-height: var(--line-height-tight);
+  color: var(--color-accent-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.intro-from {
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  color: var(--color-text);
+  margin-bottom: var(--spacing-xl);
+}
+
+.intro-tap {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ==============================================
+   SCROLL HINT
+   Bouncing arrow on Section 1, fades out on scroll
+   ============================================== */
+
+.scroll-hint {
+  position: absolute;
+  bottom: var(--spacing-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+/* Show after overlay is dismissed */
+body:not(.intro-active) .scroll-hint {
+  opacity: 1;
+}
+
+/* Hide after scrolling */
+.scroll-hint.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scroll-hint-arrow {
+  display: block;
+  font-size: 1.5rem;
+  color: var(--color-accent-primary);
+  animation: bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
 /* ==============================================
    SECTION BASE STYLES
    Every section follows this structure:
