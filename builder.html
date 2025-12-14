@@ -21,7 +21,7 @@
 
         <form id="builder-form">
           <!-- Intro Section -->
-          <fieldset class="builder-fieldset">
+          <fieldset class="builder-fieldset intro-fieldset" id="intro-fieldset">
             <legend>Intro Screen</legend>
             <label>
               Year
@@ -46,14 +46,21 @@
         </form>
 
         <footer class="builder-footer">
-          <button type="button" id="preview-btn" class="btn btn-primary">
-            Update Preview
+          <button type="button" id="import-btn" class="btn btn-secondary">
+            Load Config
           </button>
           <button type="button" id="export-btn" class="btn btn-secondary">
-            Export Config
+            Export JSON
           </button>
+          <button type="button" id="share-btn" class="btn btn-primary">
+            Share Link
+          </button>
+          <input type="file" id="import-file-input" accept=".json" style="display: none" />
         </footer>
       </aside>
+
+      <!-- Resizable Divider -->
+      <div class="builder-divider" id="builder-divider"></div>
 
       <!-- Right Panel: Live Preview -->
       <main class="builder-preview">

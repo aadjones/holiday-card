@@ -11,28 +11,45 @@ import { renderCard } from './components/CardRenderer.js';
 // Clone the default config as our working copy
 let currentConfig = JSON.parse(JSON.stringify(defaultConfig));
 
+// Track active section for preview sync
+let activeSectionIndex = -1;
+
 // DOM elements
 const form = document.getElementById('builder-form');
 const sectionsContainer = document.getElementById('sections-container');
 const previewIframe = document.getElementById('preview-iframe');
 const addSectionBtn = document.getElementById('add-section-btn');
-const previewBtn = document.getElementById('preview-btn');
 const exportBtn = document.getElementById('export-btn');
+const importBtn = document.getElementById('import-btn');
+const importFileInput = document.getElementById('import-file-input');
+const shareBtn = document.getElementById('share-btn');
 
 /**
  * Initialize the builder
  */
 function init() {
+  // Check for config in URL hash first
+  loadConfigFromUrl();
+
   // Render initial sections
   renderSectionForms();
 
   // Bind events
   addSectionBtn.addEventListener('click', addSection);
-  previewBtn.addEventListener('click', updatePreview);
   exportBtn.addEventListener('click', exportConfig);
+  importBtn.addEventListener('click', () => importFileInput.click());
+  importFileInput.addEventListener('change', importConfig);
+  shareBtn.addEventListener('click', generateShareLink);
 
   // Auto-update on input changes (debounced)
   form.addEventListener('input', debounce(handleFormInput, 300));
+
+  // Bind intro fieldset clicks
+  const introFieldset = document.getElementById('intro-fieldset');
+  if (introFieldset) {
+    introFieldset.addEventListener('click', () => setActiveSection(-1));
+    introFieldset.addEventListener('focusin', () => setActiveSection(-1));
+  }
 
   // Initial preview
   updatePreview();
@@ -53,6 +70,9 @@ function renderSectionForms() {
       deleteSection(index);
     });
   });
+
+  // Bind section focus for preview sync
+  bindSectionFocus();
 }
 
 /**
@@ -121,35 +141,49 @@ function renderImageForm(sectionIndex, image, imageIndex) {
     .map(r => `<option value="${r.id || ''}" ${image.rotation === r.id ? 'selected' : ''}>${r.label}</option>`)
     .join('');
 
+  // Show thumbnail if we have a src
+  const thumbnailStyle = image.src ? `background-image: url('${escapeAttr(image.src)}')` : '';
+  const hasImage = image.src ? 'has-image' : '';
+
   return `
-    <div class="image-row">
-      <input
-        type="text"
-        name="sections.${sectionIndex}.images.${imageIndex}.src"
-        value="${escapeAttr(image.src || '')}"
-        placeholder="Image path or URL"
-      />
-      <select name="sections.${sectionIndex}.images.${imageIndex}.rotation">
-        ${rotationOptions}
-      </select>
-      <label class="checkbox-label">
+    <div class="image-row" data-section="${sectionIndex}" data-image="${imageIndex}">
+      <div class="image-picker ${hasImage}" style="${thumbnailStyle}">
         <input
-          type="checkbox"
-          name="sections.${sectionIndex}.images.${imageIndex}.span"
-          value="tall"
-          ${image.span === 'tall' ? 'checked' : ''}
+          type="file"
+          accept="image/*"
+          class="image-file-input"
+          data-section="${sectionIndex}"
+          data-image="${imageIndex}"
         />
-        Tall
-      </label>
-      <label class="checkbox-label">
-        <input
-          type="checkbox"
-          name="sections.${sectionIndex}.images.${imageIndex}.span"
-          value="hero"
-          ${image.span === 'hero' ? 'checked' : ''}
-        />
-        Hero
-      </label>
+        <span class="image-picker-label">${image.src ? 'Change' : '+ Image'}</span>
+      </div>
+      <div class="image-options">
+        <label class="select-label">
+          Tilt
+          <select name="sections.${sectionIndex}.images.${imageIndex}.rotation">
+            ${rotationOptions}
+          </select>
+        </label>
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            name="sections.${sectionIndex}.images.${imageIndex}.span"
+            value="tall"
+            ${image.span === 'tall' ? 'checked' : ''}
+          />
+          Tall
+        </label>
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            name="sections.${sectionIndex}.images.${imageIndex}.span"
+            value="hero"
+            ${image.span === 'hero' ? 'checked' : ''}
+          />
+          Wide
+        </label>
+        <button type="button" class="btn-icon delete-image-btn" data-section="${sectionIndex}" data-image="${imageIndex}" title="Remove image">&times;</button>
+      </div>
     </div>
   `;
 }
@@ -225,15 +259,193 @@ function deleteSection(index) {
 }
 
 /**
- * Bind add image buttons
+ * Bind add image buttons and file inputs
  */
 function bindImageButtons() {
+  // Add image buttons
   document.querySelectorAll('.add-image-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const sectionIndex = parseInt(e.target.dataset.section, 10);
       addImageToSection(sectionIndex);
     });
   });
+
+  // File inputs for image picking
+  document.querySelectorAll('.image-file-input').forEach(input => {
+    input.addEventListener('change', handleImageUpload);
+  });
+
+  // Delete image buttons
+  document.querySelectorAll('.delete-image-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const sectionIndex = parseInt(e.target.dataset.section, 10);
+      const imageIndex = parseInt(e.target.dataset.image, 10);
+      deleteImage(sectionIndex, imageIndex);
+    });
+  });
+}
+
+/**
+ * Handle image file upload - convert to data URL for preview
+ */
+function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const sectionIndex = parseInt(e.target.dataset.section, 10);
+  const imageIndex = parseInt(e.target.dataset.image, 10);
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const dataUrl = event.target.result;
+
+    // Update config
+    currentConfig.sections[sectionIndex].images[imageIndex].src = dataUrl;
+
+    // Update the picker thumbnail
+    const picker = e.target.closest('.image-picker');
+    if (picker) {
+      picker.style.backgroundImage = `url('${dataUrl}')`;
+      picker.classList.add('has-image');
+      picker.querySelector('.image-picker-label').textContent = 'Change';
+    }
+
+    updatePreview();
+  };
+  reader.readAsDataURL(file);
+}
+
+/**
+ * Delete an image from a section
+ */
+function deleteImage(sectionIndex, imageIndex) {
+  currentConfig.sections[sectionIndex].images.splice(imageIndex, 1);
+  renderSectionForms();
+  bindImageButtons();
+  updatePreview();
+}
+
+/**
+ * Bind section fieldsets to track focus and sync with preview
+ * Uses event delegation to avoid duplicate listeners on re-renders
+ */
+function bindSectionFocus() {
+  // Remove existing listener if present
+  sectionsContainer.removeEventListener('focusin', handleSectionFocusIn);
+  sectionsContainer.removeEventListener('click', handleSectionClick);
+
+  // Add single delegated listeners
+  sectionsContainer.addEventListener('focusin', handleSectionFocusIn);
+  sectionsContainer.addEventListener('click', handleSectionClick);
+}
+
+/**
+ * Handle focusin events via delegation
+ */
+function handleSectionFocusIn(e) {
+  const fieldset = e.target.closest('.section-fieldset');
+  if (fieldset) {
+    const index = parseInt(fieldset.dataset.sectionIndex, 10);
+    setActiveSection(index);
+  }
+}
+
+/**
+ * Handle click events via delegation
+ */
+function handleSectionClick(e) {
+  const fieldset = e.target.closest('.section-fieldset');
+  if (fieldset) {
+    const index = parseInt(fieldset.dataset.sectionIndex, 10);
+    setActiveSection(index);
+  }
+}
+
+/**
+ * Set the active section and sync preview
+ * index -1 = intro screen, 0+ = sections
+ */
+function setActiveSection(index) {
+  const previousIndex = activeSectionIndex;
+  activeSectionIndex = index;
+
+  // Only update DOM if the section actually changed
+  if (previousIndex !== index) {
+    // Update form UI - remove all active states
+    document.querySelectorAll('.section-fieldset').forEach(fs => {
+      fs.classList.remove('active');
+    });
+    const introFieldset = document.getElementById('intro-fieldset');
+    if (introFieldset) {
+      introFieldset.classList.remove('active');
+    }
+
+    // Add active state to the appropriate fieldset
+    if (index === -1) {
+      // Intro screen
+      if (introFieldset) {
+        introFieldset.classList.add('active');
+      }
+      showIntroInPreview();
+    } else {
+      // Section
+      const activeFieldset = document.querySelector(`[data-section-index="${index}"]`);
+      if (activeFieldset) {
+        activeFieldset.classList.add('active');
+      }
+      scrollPreviewToSection(index);
+    }
+  }
+}
+
+/**
+ * Show the intro overlay in the preview
+ */
+function showIntroInPreview() {
+  const iframeDoc = previewIframe.contentDocument || previewIframe.contentWindow.document;
+  if (!iframeDoc) return;
+
+  // Show intro overlay
+  const overlay = iframeDoc.getElementById('intro-overlay');
+  if (overlay) {
+    overlay.classList.remove('hidden');
+  }
+
+  // Remove section highlights
+  iframeDoc.querySelectorAll('.card-section').forEach(s => {
+    s.classList.remove('builder-active');
+  });
+
+  // Scroll to top
+  iframeDoc.documentElement.scrollTop = 0;
+}
+
+/**
+ * Scroll the preview iframe to show the active section
+ */
+function scrollPreviewToSection(index) {
+  const iframeDoc = previewIframe.contentDocument || previewIframe.contentWindow.document;
+  if (!iframeDoc) return;
+
+  // Hide intro overlay when viewing sections
+  const overlay = iframeDoc.getElementById('intro-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+  }
+  iframeDoc.body?.classList.remove('intro-active');
+
+  // Remove previous highlight
+  iframeDoc.querySelectorAll('.card-section').forEach(s => {
+    s.classList.remove('builder-active');
+  });
+
+  // Find and highlight the active section
+  const sectionNum = index + 1;
+  const section = iframeDoc.querySelector(`[data-section="${sectionNum}"]`);
+  if (section) {
+    section.classList.add('builder-active');
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 /**
@@ -244,7 +456,7 @@ function addImageToSection(sectionIndex) {
     currentConfig.sections[sectionIndex].images = [];
   }
   currentConfig.sections[sectionIndex].images.push({
-    src: '/assets/images/images_00.jpg',
+    src: '',
     alt: '',
     rotation: null,
     span: null
@@ -281,15 +493,19 @@ function updatePreview() {
         <style>
           /* Disable audio autoplay in preview */
           body { overflow: auto; }
+
+          /* Active section highlight for builder */
+          .card-section.builder-active {
+            outline: 3px solid var(--color-accent-primary);
+            outline-offset: -3px;
+          }
         </style>
       </head>
       <body>
         ${html}
         <script>
-          // Auto-enter (skip intro overlay)
-          const overlay = document.getElementById('intro-overlay');
-          if (overlay) overlay.classList.add('hidden');
-          document.body.classList.remove('intro-active');
+          // Show intro overlay by default (will be hidden when navigating to sections)
+          // Don't auto-hide it anymore
 
           // Trigger all cat animations for preview
           document.querySelectorAll('[data-cat-trigger]').forEach(el => {
@@ -305,10 +521,18 @@ function updatePreview() {
   doc.open();
   doc.write(previewHtml);
   doc.close();
+
+  // After preview reloads, restore the active section view if one is selected
+  if (activeSectionIndex >= 0) {
+    // Small delay to ensure iframe content is ready
+    setTimeout(() => {
+      scrollPreviewToSection(activeSectionIndex);
+    }, 50);
+  }
 }
 
 /**
- * Export the current config as JSON
+ * Export the current config as JSON file download
  */
 function exportConfig() {
   const json = JSON.stringify(currentConfig, null, 2);
@@ -324,6 +548,122 @@ function exportConfig() {
 }
 
 /**
+ * Import config from a JSON file
+ */
+function importConfig(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    try {
+      const imported = JSON.parse(event.target.result);
+      loadConfig(imported);
+    } catch (err) {
+      alert('Invalid JSON file. Please check the format.');
+      console.error('Import error:', err);
+    }
+  };
+  reader.readAsText(file);
+
+  // Reset input so same file can be re-imported
+  e.target.value = '';
+}
+
+/**
+ * Load a config object into the builder
+ */
+function loadConfig(config) {
+  // Validate basic structure
+  if (!config.intro || !Array.isArray(config.sections)) {
+    alert('Invalid config format. Missing intro or sections.');
+    return;
+  }
+
+  currentConfig = JSON.parse(JSON.stringify(config));
+  activeSectionIndex = -1;
+
+  // Update intro form fields
+  const introFields = ['year', 'title', 'from'];
+  introFields.forEach(field => {
+    const input = form.querySelector(`[name="intro.${field}"]`);
+    if (input && config.intro[field] !== undefined) {
+      input.value = config.intro[field] || '';
+    }
+  });
+
+  // Re-render sections and update preview
+  renderSectionForms();
+  bindImageButtons();
+  updatePreview();
+}
+
+/**
+ * Generate a shareable URL with config encoded in the hash
+ */
+function generateShareLink() {
+  try {
+    const json = JSON.stringify(currentConfig);
+    const encoded = btoa(encodeURIComponent(json));
+    const shareUrl = `${window.location.origin}${window.location.pathname}#config=${encoded}`;
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showToast('Share link copied to clipboard!');
+    }).catch(() => {
+      // Fallback: show in prompt
+      prompt('Copy this share link:', shareUrl);
+    });
+  } catch (err) {
+    alert('Failed to generate share link. Config may be too large.');
+    console.error('Share error:', err);
+  }
+}
+
+/**
+ * Load config from URL hash if present
+ */
+function loadConfigFromUrl() {
+  const hash = window.location.hash;
+  if (!hash.startsWith('#config=')) return;
+
+  try {
+    const encoded = hash.slice(8); // Remove '#config='
+    const json = decodeURIComponent(atob(encoded));
+    const config = JSON.parse(json);
+    currentConfig = config;
+
+    // Clear hash to avoid issues with editing
+    history.replaceState(null, '', window.location.pathname);
+  } catch (err) {
+    console.error('Failed to load config from URL:', err);
+  }
+}
+
+/**
+ * Show a temporary toast notification
+ */
+function showToast(message) {
+  const existing = document.querySelector('.builder-toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'builder-toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  // Trigger animation
+  requestAnimationFrame(() => {
+    toast.classList.add('visible');
+  });
+
+  setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
+}
+
+/**
  * Utility: Debounce function calls
  */
 function debounce(fn, delay) {
@@ -332,6 +672,40 @@ function debounce(fn, delay) {
     clearTimeout(timeout);
     timeout = setTimeout(() => fn(...args), delay);
   };
+}
+
+/**
+ * Initialize the resizable panel divider
+ */
+function initResizableDivider() {
+  const divider = document.getElementById('builder-divider');
+  const layout = document.querySelector('.builder-layout');
+
+  let isDragging = false;
+
+  divider.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    divider.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+
+    const newWidth = Math.max(300, Math.min(e.clientX, window.innerWidth - 300));
+    layout.style.setProperty('--panel-width', `${newWidth}px`);
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      divider.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+  });
 }
 
 /**
@@ -355,4 +729,5 @@ function escapeAttr(text) {
 document.addEventListener('DOMContentLoaded', () => {
   init();
   bindImageButtons();
+  initResizableDivider();
 });

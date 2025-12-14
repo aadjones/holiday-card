@@ -6,7 +6,7 @@
 /* Layout */
 .builder-layout {
   display: grid;
-  grid-template-columns: 400px 1fr;
+  grid-template-columns: var(--panel-width, 400px) 6px 1fr;
   height: 100vh;
   background-color: var(--color-background);
 }
@@ -16,8 +16,20 @@
   display: flex;
   flex-direction: column;
   background-color: var(--color-background-alt);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
   overflow-y: auto;
+  min-width: 300px;
+}
+
+/* Resizable Divider */
+.builder-divider {
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: col-resize;
+  transition: background-color 0.2s;
+}
+
+.builder-divider:hover,
+.builder-divider.dragging {
+  background-color: var(--color-accent-primary);
 }
 
 .builder-header {
@@ -41,6 +53,7 @@
 #builder-form {
   flex: 1;
   padding: var(--spacing-md);
+  padding-bottom: calc(var(--spacing-md) + 60px); /* Extra space for footer */
   overflow-y: auto;
 }
 
@@ -94,9 +107,33 @@
   min-height: 60px;
 }
 
+/* Intro fieldset */
+.intro-fieldset {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.intro-fieldset.active {
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 0 1px var(--color-accent-primary);
+}
+
+.intro-fieldset.active legend {
+  color: var(--color-accent-primary);
+}
+
 /* Section fieldset */
 .section-fieldset {
   position: relative;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.section-fieldset.active {
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 0 1px var(--color-accent-primary);
+}
+
+.section-fieldset.active legend {
+  color: var(--color-accent-primary);
 }
 
 .delete-section-btn {
@@ -128,21 +165,111 @@
 
 .image-row {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+  margin-bottom: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+}
+
+/* Image picker thumbnail */
+.image-picker {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  background-size: cover;
+  background-position: center;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
   align-items: center;
-  margin-bottom: var(--spacing-xs);
+  justify-content: center;
+  transition: border-color 0.2s;
+}
+
+.image-picker:hover {
+  border-color: var(--color-accent-primary);
+}
+
+.image-picker.has-image {
+  border-style: solid;
+  border-color: transparent;
+}
+
+.image-picker.has-image:hover {
+  border-color: var(--color-accent-primary);
+}
+
+.image-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.image-picker-label {
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+  text-align: center;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.image-picker.has-image .image-picker-label {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.image-picker.has-image:hover .image-picker-label {
+  opacity: 1;
+}
+
+/* Image options */
+.image-options {
+  display: flex;
   flex-wrap: wrap;
-}
-
-.image-row input[type="text"] {
+  gap: var(--spacing-sm);
+  align-items: center;
   flex: 1;
-  min-width: 150px;
-  margin: 0;
 }
 
-.image-row select {
+.image-options select {
   width: auto;
   margin: 0;
+}
+
+.select-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.select-label select {
+  margin-top: 2px;
+}
+
+/* Delete image button */
+.btn-icon {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  margin-left: auto;
+}
+
+.btn-icon:hover {
+  color: #ff6b6b;
 }
 
 .checkbox-label {
@@ -236,6 +363,28 @@
   width: 100%;
   height: 100%;
   border: none;
+}
+
+/* Toast Notification */
+.builder-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  background-color: var(--color-accent-primary);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: 8px;
+  font-size: var(--font-size-base);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.builder-toast.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
 }
 
 /* Responsive */
