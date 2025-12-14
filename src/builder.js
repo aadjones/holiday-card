@@ -599,13 +599,14 @@ function loadConfig(config) {
 }
 
 /**
- * Generate a shareable URL with config encoded in the hash
+ * Generate a shareable URL to the card (not the builder)
  */
 function generateShareLink() {
   try {
     const json = JSON.stringify(currentConfig);
     const encoded = btoa(encodeURIComponent(json));
-    const shareUrl = `${window.location.origin}${window.location.pathname}#config=${encoded}`;
+    // Share link points to the card viewer (index.html), not the builder
+    const shareUrl = `${window.location.origin}/#config=${encoded}`;
 
     // Copy to clipboard
     navigator.clipboard.writeText(shareUrl).then(() => {
