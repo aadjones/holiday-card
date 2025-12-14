@@ -328,6 +328,9 @@ function deleteImage(sectionIndex, imageIndex) {
   updatePreview();
 }
 
+// Store audio control handlers for cleanup
+let audioControlHandlers = null;
+
 /**
  * Bind audio controls (dropdown, file picker, volume)
  */
@@ -342,18 +345,29 @@ function bindAudioControls() {
 
   if (!audioSelect) return;
 
+  // Remove existing handlers if present
+  if (audioControlHandlers) {
+    audioSelect.removeEventListener('change', audioControlHandlers.selectChange);
+    audioFileInput.removeEventListener('change', audioControlHandlers.fileChange);
+    audioVolume.removeEventListener('input', audioControlHandlers.volumeChange);
+  }
+
   // Determine initial state from config
   const audioSrc = currentConfig.audio?.src;
   if (!audioSrc) {
     audioSelect.value = 'silent';
     volumeLabel.style.display = 'none';
+    audioCustom.style.display = 'none';
   } else if (audioSrc === '/assets/audio/lullaby.mp3') {
     audioSelect.value = 'default';
+    audioCustom.style.display = 'none';
+    volumeLabel.style.display = '';
   } else {
     audioSelect.value = 'custom';
     audioCustom.style.display = 'flex';
     audioPicker.classList.add('has-audio');
     audioPickerLabel.textContent = 'Audio';
+    volumeLabel.style.display = '';
   }
 
   // Set volume slider
@@ -361,8 +375,8 @@ function bindAudioControls() {
     audioVolume.value = currentConfig.audio.volume;
   }
 
-  // Handle dropdown change
-  audioSelect.addEventListener('change', () => {
+  // Define handlers
+  const selectChange = () => {
     const value = audioSelect.value;
 
     if (value === 'default') {
@@ -376,14 +390,16 @@ function bindAudioControls() {
     } else if (value === 'custom') {
       audioCustom.style.display = 'flex';
       volumeLabel.style.display = '';
-      // Don't change src yet - wait for file upload
+      // Keep existing custom audio if we have one, otherwise wait for upload
+      if (!currentConfig.audio?.src || currentConfig.audio.src === '/assets/audio/lullaby.mp3') {
+        // Don't change src yet - wait for file upload
+      }
     }
 
     updatePreview();
-  });
+  };
 
-  // Handle file upload
-  audioFileInput.addEventListener('change', (e) => {
+  const fileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -398,15 +414,22 @@ function bindAudioControls() {
       updatePreview();
     };
     reader.readAsDataURL(file);
-  });
+  };
 
-  // Handle volume change
-  audioVolume.addEventListener('input', () => {
+  const volumeChange = () => {
     if (currentConfig.audio) {
       currentConfig.audio.volume = parseFloat(audioVolume.value);
     }
     updatePreview();
-  });
+  };
+
+  // Store handlers for cleanup
+  audioControlHandlers = { selectChange, fileChange, volumeChange };
+
+  // Add listeners
+  audioSelect.addEventListener('change', selectChange);
+  audioFileInput.addEventListener('change', fileChange);
+  audioVolume.addEventListener('input', volumeChange);
 }
 
 /**
@@ -688,10 +711,31 @@ function loadConfig(config) {
  */
 function generateShareLink() {
   try {
+    // Check for large data URLs (custom audio/images) that won't work in URL
+    const hasCustomAudio = currentConfig.audio?.src?.startsWith('data:');
+    const hasCustomImages = currentConfig.sections.some(s =>
+      s.images?.some(img => img.src?.startsWith('data:'))
+    );
+
+    if (hasCustomAudio || hasCustomImages) {
+      const issues = [];
+      if (hasCustomAudio) issues.push('custom audio');
+      if (hasCustomImages) issues.push('uploaded images');
+
+      alert(`Share links don't support ${issues.join(' or ')} (too large for URLs).\n\nUse "Export JSON" instead to save your full config, or switch to the default audio track.`);
+      return;
+    }
+
     const json = JSON.stringify(currentConfig);
     const encoded = btoa(encodeURIComponent(json));
     // Share link points to the card viewer (index.html), not the builder
     const shareUrl = `${window.location.origin}/#config=${encoded}`;
+
+    // Check URL length (browsers have limits ~2000-8000 chars)
+    if (shareUrl.length > 6000) {
+      alert('Config is too large for a share link. Use "Export JSON" instead.');
+      return;
+    }
 
     // Copy to clipboard
     navigator.clipboard.writeText(shareUrl).then(() => {
