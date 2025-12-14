@@ -35,6 +35,29 @@
               From Line
               <input type="text" name="intro.from" value="from Anakaren & Aaron" />
             </label>
+            <div class="audio-group">
+              <strong>Background Music</strong>
+              <div class="audio-row" id="audio-row">
+                <label class="select-label">
+                  Track
+                  <select id="audio-select" name="audio.preset">
+                    <option value="default">Lullaby (default)</option>
+                    <option value="silent">Silent</option>
+                    <option value="custom">Custom...</option>
+                  </select>
+                </label>
+                <div class="audio-custom" id="audio-custom" style="display: none;">
+                  <div class="audio-picker" id="audio-picker">
+                    <input type="file" accept="audio/*" class="audio-file-input" id="audio-file-input" />
+                    <span class="audio-picker-label" id="audio-picker-label">+ Audio</span>
+                  </div>
+                </div>
+                <label class="select-label" id="volume-label">
+                  Volume
+                  <input type="range" name="audio.volume" min="0" max="1" step="0.1" value="0.4" id="audio-volume" />
+                </label>
+              </div>
+            </div>
           </fieldset>
 
           <!-- Sections -->

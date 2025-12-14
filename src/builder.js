@@ -51,6 +51,9 @@ function init() {
     introFieldset.addEventListener('focusin', () => setActiveSection(-1));
   }
 
+  // Bind audio controls
+  bindAudioControls();
+
   // Initial preview
   updatePreview();
 }
@@ -326,6 +329,87 @@ function deleteImage(sectionIndex, imageIndex) {
 }
 
 /**
+ * Bind audio controls (dropdown, file picker, volume)
+ */
+function bindAudioControls() {
+  const audioSelect = document.getElementById('audio-select');
+  const audioCustom = document.getElementById('audio-custom');
+  const audioPicker = document.getElementById('audio-picker');
+  const audioFileInput = document.getElementById('audio-file-input');
+  const audioPickerLabel = document.getElementById('audio-picker-label');
+  const volumeLabel = document.getElementById('volume-label');
+  const audioVolume = document.getElementById('audio-volume');
+
+  if (!audioSelect) return;
+
+  // Determine initial state from config
+  const audioSrc = currentConfig.audio?.src;
+  if (!audioSrc) {
+    audioSelect.value = 'silent';
+    volumeLabel.style.display = 'none';
+  } else if (audioSrc === '/assets/audio/lullaby.mp3') {
+    audioSelect.value = 'default';
+  } else {
+    audioSelect.value = 'custom';
+    audioCustom.style.display = 'flex';
+    audioPicker.classList.add('has-audio');
+    audioPickerLabel.textContent = 'Audio';
+  }
+
+  // Set volume slider
+  if (currentConfig.audio?.volume !== undefined) {
+    audioVolume.value = currentConfig.audio.volume;
+  }
+
+  // Handle dropdown change
+  audioSelect.addEventListener('change', () => {
+    const value = audioSelect.value;
+
+    if (value === 'default') {
+      currentConfig.audio = { src: '/assets/audio/lullaby.mp3', volume: parseFloat(audioVolume.value) };
+      audioCustom.style.display = 'none';
+      volumeLabel.style.display = '';
+    } else if (value === 'silent') {
+      currentConfig.audio = { src: null, volume: 0 };
+      audioCustom.style.display = 'none';
+      volumeLabel.style.display = 'none';
+    } else if (value === 'custom') {
+      audioCustom.style.display = 'flex';
+      volumeLabel.style.display = '';
+      // Don't change src yet - wait for file upload
+    }
+
+    updatePreview();
+  });
+
+  // Handle file upload
+  audioFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target.result;
+      currentConfig.audio = { src: dataUrl, volume: parseFloat(audioVolume.value) };
+
+      audioPicker.classList.add('has-audio');
+      audioPickerLabel.textContent = file.name.length > 12 ? file.name.slice(0, 10) + '...' : file.name;
+
+      updatePreview();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Handle volume change
+  audioVolume.addEventListener('input', () => {
+    if (currentConfig.audio) {
+      currentConfig.audio.volume = parseFloat(audioVolume.value);
+    }
+    updatePreview();
+  });
+}
+
+/**
  * Bind section fieldsets to track focus and sync with preview
  * Uses event delegation to avoid duplicate listeners on re-renders
  */
@@ -595,6 +679,7 @@ function loadConfig(config) {
   // Re-render sections and update preview
   renderSectionForms();
   bindImageButtons();
+  bindAudioControls(); // Re-bind to update audio UI from imported config
   updatePreview();
 }
 
