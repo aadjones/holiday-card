@@ -715,11 +715,20 @@ async function generateShareLink() {
     shareBtn.disabled = true;
     shareBtn.textContent = 'Saving...';
 
+    // Check config size before sending (Upstash limit is ~10MB)
+    const configJson = JSON.stringify({ config: currentConfig });
+    const configSizeMB = new Blob([configJson]).size / (1024 * 1024);
+
+    if (configSizeMB > 9) {
+      alert(`Your card is too large to share (${configSizeMB.toFixed(1)}MB).\n\nTry using fewer or smaller images, or use "Export JSON" to save locally.`);
+      return;
+    }
+
     // Save to server
     const response = await fetch('/api/card', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ config: currentConfig }),
+      body: configJson,
     });
 
     if (!response.ok) {

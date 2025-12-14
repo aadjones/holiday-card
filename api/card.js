@@ -113,6 +113,15 @@ export default async function handler(req) {
     );
   } catch (err) {
     console.error('API error:', err);
+
+    // Handle Upstash size limit error
+    if (err.message?.includes('max request size exceeded')) {
+      return new Response(
+        JSON.stringify({ error: 'Card is too large. Try using smaller images.' }),
+        { status: 413, headers }
+      );
+    }
+
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers }
