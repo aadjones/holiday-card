@@ -73,7 +73,6 @@ export function renderCard(config) {
 
         const section = entry.target;
         const catTrigger = section.querySelector('[data-cat-trigger]');
-
         if (catTrigger) {
           catTrigger.classList.add('is-visible');
           section.classList.add('cat-active');
@@ -83,16 +82,6 @@ export function renderCard(config) {
 
     const sections = container.querySelectorAll('.card-section');
     sections.forEach(section => sectionObserver.observe(section));
-
-    // Set up scroll hint
-    const scrollHint = container.querySelector('#scroll-hint');
-    if (scrollHint) {
-      const hideScrollHint = () => {
-        scrollHint.classList.add('hidden');
-        window.removeEventListener('scroll', hideScrollHint);
-      };
-      window.addEventListener('scroll', hideScrollHint, { once: true });
-    }
   }
 
   function cleanup() {
@@ -146,7 +135,7 @@ function renderSection(section, index) {
         ${renderImages(section)}
         ${section.body ? `<div class="section-body"><p>${escapeHtml(section.body)}</p></div>` : ''}
       </div>
-      ${section.showScrollHint ? renderScrollHint() : ''}
+      ${sectionNum === 1 ? renderScrollHint() : ''}
     </section>
   `;
 }

@@ -61,16 +61,20 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: var(--spacing-md);
+  padding-top: calc(var(--spacing-md) + 0.5em);
+  margin-top: 0.5em;
   margin-bottom: var(--spacing-md);
 }
 
 .builder-fieldset legend {
   font-weight: bold;
   color: var(--color-text);
-  padding: 0 var(--spacing-xs);
+  padding: 0.25em var(--spacing-xs);
+  margin-left: var(--spacing-sm);
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  background-color: var(--color-background-alt);
 }
 
 .builder-fieldset label {

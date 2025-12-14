@@ -6,7 +6,13 @@
       "Bash(npm install:*)",
       "Bash(mkdir:*)",
       "Bash(git init:*)",
-      "Bash(vercel env pull:*)"
+      "Bash(vercel env pull:*)",
+      "Bash(git -C /Users/adj/Documents/Code/app-development/holiday-2025 log --oneline --all)",
+      "Bash(wc:*)",
+      "Bash(git -C /Users/adj/Documents/Code/app-development/holiday-2025 log --oneline --graph --decorate)",
+      "Bash(npm run build:*)",
+      "Bash(find:*)",
+      "Bash(mv:*)"
     ]
   }
 }

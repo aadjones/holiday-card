@@ -83,15 +83,25 @@ body.intro-active {
 
 /* ==============================================
    SCROLL HINT
-   Bouncing arrow on Section 1, fades out on scroll
+   Absolute positioned within section 1 only.
    ============================================== */
 
 .scroll-hint {
   position: absolute;
-  bottom: var(--spacing-lg);
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: var(--spacing-md);
+  right: var(--spacing-md);
   z-index: 5;
+
+  /* Visual container */
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -100,12 +110,6 @@ body.intro-active {
 /* Show after overlay is dismissed */
 body:not(.intro-active) .scroll-hint {
   opacity: 1;
-}
-
-/* Hide after scrolling */
-.scroll-hint.hidden {
-  opacity: 0;
-  pointer-events: none;
 }
 
 .scroll-hint-arrow {
@@ -394,6 +398,17 @@ body:not(.intro-active) .scroll-hint {
 
   .section-title {
     font-size: clamp(1.75rem, 8vw, 2.5rem);
+  }
+
+  .scroll-hint {
+    width: 40px;
+    height: 40px;
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .scroll-hint-arrow {
+    font-size: 1.25rem;
   }
 }
 
