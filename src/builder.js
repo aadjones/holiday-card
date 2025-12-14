@@ -708,45 +708,41 @@ function loadConfig(config) {
 
 /**
  * Generate a shareable URL to the card (not the builder)
+ * Saves config to server and returns a short URL
  */
-function generateShareLink() {
+async function generateShareLink() {
   try {
-    // Check for large data URLs (custom audio/images) that won't work in URL
-    const hasCustomAudio = currentConfig.audio?.src?.startsWith('data:');
-    const hasCustomImages = currentConfig.sections.some(s =>
-      s.images?.some(img => img.src?.startsWith('data:'))
-    );
+    shareBtn.disabled = true;
+    shareBtn.textContent = 'Saving...';
 
-    if (hasCustomAudio || hasCustomImages) {
-      const issues = [];
-      if (hasCustomAudio) issues.push('custom audio');
-      if (hasCustomImages) issues.push('uploaded images');
+    // Save to server
+    const response = await fetch('/api/card', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ config: currentConfig }),
+    });
 
-      alert(`Share links don't support ${issues.join(' or ')} (too large for URLs).\n\nUse "Export JSON" instead to save your full config, or switch to the default audio track.`);
-      return;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to save card');
     }
 
-    const json = JSON.stringify(currentConfig);
-    const encoded = btoa(encodeURIComponent(json));
-    // Share link points to the card viewer (index.html), not the builder
-    const shareUrl = `${window.location.origin}/#config=${encoded}`;
-
-    // Check URL length (browsers have limits ~2000-8000 chars)
-    if (shareUrl.length > 6000) {
-      alert('Config is too large for a share link. Use "Export JSON" instead.');
-      return;
-    }
+    const { id } = await response.json();
+    const shareUrl = `${window.location.origin}/#card=${id}`;
 
     // Copy to clipboard
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      showToast('Share link copied to clipboard!');
-    }).catch(() => {
+    await navigator.clipboard.writeText(shareUrl).catch(() => {
       // Fallback: show in prompt
       prompt('Copy this share link:', shareUrl);
     });
+
+    showToast('Share link copied to clipboard!');
   } catch (err) {
-    alert('Failed to generate share link. Config may be too large.');
+    alert('Failed to generate share link: ' + err.message);
     console.error('Share error:', err);
+  } finally {
+    shareBtn.disabled = false;
+    shareBtn.textContent = 'Share Link';
   }
 }
 
