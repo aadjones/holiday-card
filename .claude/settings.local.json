@@ -12,7 +12,9 @@
       "Bash(git -C /Users/adj/Documents/Code/app-development/holiday-2025 log --oneline --graph --decorate)",
       "Bash(npm run build:*)",
       "Bash(find:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)"
     ]
   }
 }

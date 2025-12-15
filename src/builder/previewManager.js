@@ -55,10 +55,7 @@ export function updatePreview(config) {
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="/src/styles/reset.css" />
-        <link rel="stylesheet" href="/src/styles/theme.css" />
-        <link rel="stylesheet" href="/src/styles/layout.css" />
-        <link rel="stylesheet" href="/src/styles/cat-animations.css" />
+        <link rel="stylesheet" href="/card-styles.css" />
         <style>
           body { overflow: auto; }
           .card-section.builder-active {
