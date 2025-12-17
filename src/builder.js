@@ -6,7 +6,7 @@
  */
 
 import { defaultConfig } from './cardConfig.js';
-import { compressImage } from './builder/imageUtils.js';
+import { compressImage, uploadToCloudinary, isCloudinaryConfigured } from './builder/imageUtils.js';
 import { renderSectionForms } from './builder/formRenderer.js';
 import {
   initPreview,
@@ -181,21 +181,28 @@ async function handleImageUpload(e) {
 
   try {
     if (picker) {
-      picker.querySelector('.image-picker-label').textContent = '...';
+      picker.querySelector('.image-picker-label').textContent = isCloudinaryConfigured() ? 'Uploading...' : '...';
     }
 
-    const dataUrl = await compressImage(file);
-    currentConfig.sections[sectionIndex].images[imageIndex].src = dataUrl;
+    // Use Cloudinary if configured, otherwise fall back to base64
+    let imageUrl;
+    if (isCloudinaryConfigured()) {
+      imageUrl = await uploadToCloudinary(file);
+    } else {
+      imageUrl = await compressImage(file);
+    }
+
+    currentConfig.sections[sectionIndex].images[imageIndex].src = imageUrl;
 
     if (picker) {
-      picker.style.backgroundImage = `url('${dataUrl}')`;
+      picker.style.backgroundImage = `url('${imageUrl}')`;
       picker.classList.add('has-image');
       picker.querySelector('.image-picker-label').textContent = 'Change';
     }
 
     updatePreview(currentConfig);
   } catch (err) {
-    console.error('Image compression failed:', err);
+    console.error('Image upload failed:', err);
     alert('Failed to process image. Please try a different file.');
     if (picker) {
       picker.querySelector('.image-picker-label').textContent = '+ Image';
@@ -350,18 +357,26 @@ function bindIntroImageControls() {
     if (!file) return;
 
     try {
-      label.textContent = '...';
-      const dataUrl = await compressImage(file);
-      currentConfig.intro.image = dataUrl;
+      label.textContent = isCloudinaryConfigured() ? 'Uploading...' : '...';
 
-      picker.style.backgroundImage = `url('${dataUrl}')`;
+      // Use Cloudinary if configured, otherwise fall back to base64
+      let imageUrl;
+      if (isCloudinaryConfigured()) {
+        imageUrl = await uploadToCloudinary(file);
+      } else {
+        imageUrl = await compressImage(file);
+      }
+
+      currentConfig.intro.image = imageUrl;
+
+      picker.style.backgroundImage = `url('${imageUrl}')`;
       picker.classList.add('has-image');
       label.textContent = 'Change';
       removeBtn.style.display = '';
 
       updatePreview(currentConfig);
     } catch (err) {
-      console.error('Image compression failed:', err);
+      console.error('Image upload failed:', err);
       alert('Failed to process image. Please try a different file.');
       label.textContent = '+ Image';
     }
