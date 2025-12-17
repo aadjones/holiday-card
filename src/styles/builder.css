@@ -261,6 +261,19 @@
   border-radius: 6px;
 }
 
+/* Intro image group */
+.intro-image-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+.intro-image-group strong {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+}
+
 /* Image picker thumbnail */
 .image-picker {
   position: relative;
@@ -277,6 +290,13 @@
   align-items: center;
   justify-content: center;
   transition: border-color 0.2s;
+}
+
+.image-picker input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .image-picker:hover {

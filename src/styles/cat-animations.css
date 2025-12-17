@@ -39,6 +39,40 @@
 }
 
 /* ==============================================
+   WALK ACROSS RIGHT
+   Cat walks across from right to left
+   ============================================== */
+
+[data-cat-animation="walk-across-right"] .cat-container {
+  bottom: var(--cat-zone-bottom);
+  right: calc(-1 * var(--cat-size-small));
+}
+
+[data-cat-animation="walk-across-right"] .cat {
+  max-width: var(--cat-size-small);
+  opacity: 0;
+  transform: scaleX(-1);
+}
+
+[data-cat-animation="walk-across-right"] .cat-container.is-visible .cat {
+  animation: cat-walkAcrossRight 3s linear 0.5s forwards;
+}
+
+@keyframes cat-walkAcrossRight {
+  0% {
+    opacity: 0;
+    transform: scaleX(-1) translateX(0);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(-1) translateX(calc(100% + 160px));
+  }
+}
+
+/* ==============================================
    PEEK CORNER
    Cat peeks in from bottom-right corner
    ============================================== */
