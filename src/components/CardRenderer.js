@@ -104,9 +104,14 @@ export function renderCard(config) {
  * Render the intro overlay
  */
 function renderIntroOverlay(intro) {
+  const imageHtml = intro.image
+    ? `<img src="${escapeHtml(intro.image)}" alt="" class="intro-image" />`
+    : '';
+
   return `
     <div id="intro-overlay">
       <div class="intro-content">
+        ${imageHtml}
         <p class="intro-year">${escapeHtml(intro.year)}</p>
         <h1 class="intro-title">${escapeHtml(intro.title)}</h1>
         <p class="intro-from">${escapeHtml(intro.from)}</p>
@@ -180,8 +185,14 @@ function renderImages(section) {
   // Scrapbook layout
   const layoutClass = section.layout ? `layout-${section.layout}` : '';
 
-  const photos = section.images.map(img => {
+  const photos = section.images.map((img, index) => {
     const classes = ['scrapbook-photo'];
+
+    // Auto-apply span classes based on layout and position
+    const autoSpan = getAutoSpan(section.layout, index);
+    if (autoSpan) classes.push(autoSpan);
+
+    // Manual span override from config
     if (img.span) classes.push(img.span);
     if (img.rotation) classes.push(`rotate-${img.rotation}`);
 
@@ -190,6 +201,7 @@ function renderImages(section) {
         src="${escapeHtml(img.src)}"
         alt="${escapeHtml(img.alt || '')}"
         class="${classes.join(' ')}"
+        onload="(function(img){var r=img.naturalWidth/img.naturalHeight;img.classList.add(r>1.1?'landscape':r<0.9?'portrait':'square');})(this)"
       />
     `;
   }).join('\n');
@@ -210,6 +222,31 @@ function renderScrollHint() {
       <span class="scroll-hint-arrow">&#8595;</span>
     </div>
   `;
+}
+
+/**
+ * Get auto-applied span class based on layout and image position
+ * @param {string} layout - The layout type
+ * @param {number} index - The image index (0-based)
+ * @returns {string|null} - The span class to apply, or null
+ */
+function getAutoSpan(layout, index) {
+  switch (layout) {
+    case 'hero-top':
+      // First image spans both columns (hero on top)
+      return index === 0 ? 'hero' : null;
+    case 'hero-bottom':
+      // Third image spans both columns (hero on bottom)
+      return index === 2 ? 'hero' : null;
+    case 'tall-left':
+      // First image spans both rows (tall on left)
+      return index === 0 ? 'tall' : null;
+    case 'tall-right':
+      // Third image spans both rows (tall on right)
+      return index === 2 ? 'tall' : null;
+    default:
+      return null;
+  }
 }
 
 /**

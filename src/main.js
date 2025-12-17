@@ -42,6 +42,16 @@ async function getConfig() {
     }
   }
 
+  // Try loading from card-config.json (saved from builder)
+  try {
+    const response = await fetch('/data/card-config.json');
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (err) {
+    console.log('No card-config.json found, using default');
+  }
+
   return defaultConfig;
 }
 

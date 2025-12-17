@@ -50,7 +50,7 @@ body.intro-active {
 }
 
 .intro-year {
-  font-size: clamp(1rem, 3vw, 1.25rem);
+  font-size: 1rem;
   color: var(--color-text-muted);
   letter-spacing: 0.2em;
   margin-bottom: var(--spacing-sm);
@@ -58,14 +58,14 @@ body.intro-active {
 
 .intro-title {
   font-family: var(--font-family-display);
-  font-size: clamp(2.5rem, 10vw, 5rem);
+  font-size: 3rem;
   line-height: var(--line-height-tight);
   color: var(--color-accent-primary);
   margin-bottom: var(--spacing-xs);
 }
 
 .intro-from {
-  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  font-size: 1.5rem;
   color: var(--color-text);
   margin-bottom: var(--spacing-xl);
 }
@@ -232,18 +232,17 @@ body:not(.intro-active) .scroll-hint {
    ============================================== */
 
 .scrapbook {
-  /* Take remaining space between title and body text */
+  /* Fill available space between title and body */
   flex: 1 1 0;
   min-height: 0;
   width: 100%;
 
-  /* Grid layout - container provides the size constraint */
+  /* Grid layout - rows use fractions to guarantee fit */
   display: grid;
   gap: var(--spacing-sm);
 
-  /* Default: 2 columns */
+  /* Default: 2x2 equal grid */
   grid-template-columns: 1fr 1fr;
-  /* Rows split the available height - % of the scrapbook container */
   grid-template-rows: 1fr 1fr;
 }
 
@@ -258,6 +257,19 @@ body:not(.intro-active) .scroll-hint {
 
   /* Slight rotation for handmade feel */
   transition: transform 0.3s ease;
+}
+
+/* Orientation-based aspect ratios - detected on image load */
+.scrapbook-photo.landscape {
+  aspect-ratio: 4 / 3;
+}
+
+.scrapbook-photo.portrait {
+  aspect-ratio: 3 / 4;
+}
+
+.scrapbook-photo.square {
+  aspect-ratio: 1 / 1;
 }
 
 /* Rotation variations - applied via classes */
@@ -276,34 +288,42 @@ body:not(.intro-active) .scroll-hint {
   grid-row: span 2;
 }
 
-/* Layout variants - rows use fr units within the constrained container */
+/* Layout variants - fractional rows guarantee fit */
 
-/* 1 hero + 2 small below (hero gets 2/3 height) */
+/* Hero top: wide image on top, 2 side-by-side below */
 .scrapbook.layout-hero-top {
+  grid-template-columns: 1fr 1fr;
   grid-template-rows: 2fr 1fr;
 }
 
-/* 2 small on top + 1 hero below */
+/* Hero bottom: 2 side-by-side on top, wide image below */
 .scrapbook.layout-hero-bottom {
+  grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 2fr;
 }
 
-/* 1 tall left + 2 stacked right */
+/* Tall left: portrait spanning both rows on left, 2 stacked on right */
 .scrapbook.layout-tall-left {
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
 }
 
-/* 2 stacked left + 1 tall right */
+/* Tall right: 2 stacked on left, portrait spanning both rows on right */
 .scrapbook.layout-tall-right {
-  grid-template-columns: 1fr 1.2fr;
+  grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
 }
 
-/* 3 photos in a row */
+/* Trio pyramid: 1 centered on top, 2 side-by-side below */
 .scrapbook.layout-trio {
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.scrapbook.layout-trio .scrapbook-photo:first-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+  max-width: 60%;
 }
 
 /* Wrapper for images that need cat overlays */
@@ -384,37 +404,22 @@ body:not(.intro-active) .scroll-hint {
 }
 
 /* ==============================================
-   RESPONSIVE ADJUSTMENTS
-   iPhone SE (375px) as minimum
+   NO RESPONSIVE BREAKPOINTS
+   Card is designed for mobile and centered on larger screens.
+   Everything uses fixed sizes for consistent rendering.
    ============================================== */
 
-@media (max-width: 400px) {
-  :root {
-    --section-padding: 1rem;
-    --cat-size-small: 60px;
-    --cat-size-medium: 100px;
-    --cat-size-large: 140px;
-  }
+/* ==============================================
+   REDUCED MOTION
+   Respect user preferences for reduced motion.
+   ============================================== */
 
-  .section-title {
-    font-size: clamp(1.75rem, 8vw, 2.5rem);
-  }
-
-  .scroll-hint {
-    width: 40px;
-    height: 40px;
-    bottom: 1rem;
-    right: 1rem;
-  }
-
-  .scroll-hint-arrow {
-    font-size: 1.25rem;
-  }
-}
-
-@media (min-width: 768px) {
-  :root {
-    --section-padding: 3rem;
-    --section-max-width: 700px;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

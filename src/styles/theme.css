@@ -17,6 +17,7 @@
 
   /* --------------------------------------------
      TYPOGRAPHY
+     Fixed sizes - no responsive scaling
      -------------------------------------------- */
   --font-family-base: 'Georgia', 'Times New Roman', serif;
   --font-family-display: 'Georgia', 'Times New Roman', serif;
@@ -24,8 +25,8 @@
   --font-size-base: 1rem;
   --font-size-small: 0.875rem;
   --font-size-large: 1.25rem;
-  --font-size-title: clamp(2rem, 5vw, 3.5rem);
-  --font-size-subtitle: clamp(1.25rem, 3vw, 1.75rem);
+  --font-size-title: 2.25rem;
+  --font-size-subtitle: 1.5rem;
 
   --line-height-base: 1.6;
   --line-height-tight: 1.2;
@@ -39,8 +40,9 @@
   --spacing-lg: 2rem;
   --spacing-xl: 3rem;
 
-  --section-padding: var(--spacing-lg);
-  --section-max-width: 600px;
+  /* Card is designed for mobile (390px) and centered on larger screens */
+  --section-padding: 1.5rem;
+  --section-max-width: 358px; /* 390px - padding on both sides */
 
   /* --------------------------------------------
      ANIMATION TIMING
@@ -54,11 +56,15 @@
   --timing-gentle-easing: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* --------------------------------------------
-     CAT SIZING
+     CAT SIZING & POSITIONING
      -------------------------------------------- */
   --cat-size-small: 80px;
   --cat-size-medium: 120px;
   --cat-size-large: 180px;
+
+  /* Standardized cat positioning zones */
+  --cat-zone-bottom: 0.5rem;
+  --cat-zone-side: 0.5rem;
 
   /* --------------------------------------------
      SHADOWS & EFFECTS

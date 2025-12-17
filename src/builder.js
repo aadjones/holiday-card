@@ -56,6 +56,7 @@ function init() {
   }
 
   bindAudioControls();
+  bindIntroImageControls();
   updatePreview(currentConfig);
 }
 
@@ -326,6 +327,58 @@ function bindAudioControls() {
 }
 
 /**
+ * Bind intro image controls
+ */
+function bindIntroImageControls() {
+  const picker = document.getElementById('intro-image-picker');
+  const input = document.getElementById('intro-image-input');
+  const label = document.getElementById('intro-image-label');
+  const removeBtn = document.getElementById('intro-image-remove');
+
+  if (!input) return;
+
+  // Set initial state from config
+  if (currentConfig.intro?.image) {
+    picker.style.backgroundImage = `url('${currentConfig.intro.image}')`;
+    picker.classList.add('has-image');
+    label.textContent = 'Change';
+    removeBtn.style.display = '';
+  }
+
+  input.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      label.textContent = '...';
+      const dataUrl = await compressImage(file);
+      currentConfig.intro.image = dataUrl;
+
+      picker.style.backgroundImage = `url('${dataUrl}')`;
+      picker.classList.add('has-image');
+      label.textContent = 'Change';
+      removeBtn.style.display = '';
+
+      updatePreview(currentConfig);
+    } catch (err) {
+      console.error('Image compression failed:', err);
+      alert('Failed to process image. Please try a different file.');
+      label.textContent = '+ Image';
+    }
+  });
+
+  removeBtn.addEventListener('click', () => {
+    currentConfig.intro.image = null;
+    picker.style.backgroundImage = '';
+    picker.classList.remove('has-image');
+    label.textContent = '+ Image';
+    removeBtn.style.display = 'none';
+    input.value = '';
+    updatePreview(currentConfig);
+  });
+}
+
+/**
  * Bind section fieldsets for focus tracking
  */
 function bindSectionFocus() {
@@ -442,6 +495,7 @@ function loadConfig(config) {
 
   renderSections();
   bindAudioControls();
+  bindIntroImageControls();
   updatePreview(currentConfig);
 }
 
