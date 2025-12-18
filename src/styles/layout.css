@@ -301,6 +301,7 @@ body:not(.intro-active) .scroll-hint {
 /* Hero photo - spans multiple cells */
 .scrapbook-photo.hero {
   grid-column: span 2;
+  object-fit: contain;
 }
 
 /* Tall photo - for portraits */

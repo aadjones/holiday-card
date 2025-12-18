@@ -16,14 +16,13 @@
       "title": "How was our 2025?",
       "body": "Scroll down to find out!",
       "layout": "tall-left",
-      "catAnimation": "walk-across",
-      "catImage": "/assets/cats/shrimpas_00.png",
+      "catAnimation": "none",
+      "catImage": null,
       "showScrollHint": true,
       "images": [
         {
           "src": "/data/images/section-0-img-0.jpg",
           "alt": "Anakaren and Aaron",
-          "rotation": null,
           "span": "tall"
         },
         {
@@ -43,13 +42,13 @@
       "title": "We saw some faces",
       "body": null,
       "layout": "hero-top",
-      "catAnimation": "peek-corner",
+      "catAnimation": "center-middle",
       "catImage": "/assets/cats/shrimpas_03.png",
       "images": [
         {
           "src": "/data/images/section-1-img-0.jpg",
           "alt": "Friends gathering",
-          "rotation": "ccw-1",
+          "rotation": null,
           "span": "hero"
         },
         {
@@ -69,7 +68,7 @@
       "title": null,
       "body": null,
       "layout": "stack",
-      "catAnimation": "sleep-corner",
+      "catAnimation": "sleep-center",
       "catImage": "/assets/cats/shrimpas_02.png",
       "images": [
         {
@@ -80,9 +79,7 @@
         },
         {
           "src": "/data/images/section-2-img-1.jpg",
-          "alt": "",
-          "rotation": null,
-          "span": null
+          "alt": ""
         }
       ]
     },
@@ -101,15 +98,11 @@
         },
         {
           "src": "/data/images/section-3-img-1.jpg",
-          "alt": "",
-          "rotation": null,
-          "span": null
+          "alt": ""
         },
         {
           "src": "/data/images/section-3-img-2.jpg",
-          "alt": "",
-          "rotation": null,
-          "span": null
+          "alt": ""
         }
       ]
     },
@@ -118,31 +111,28 @@
       "title": "We got weird",
       "body": null,
       "layout": "trio",
-      "catAnimation": "pop-up",
+      "catAnimation": "pop-up-center",
       "catImage": "/assets/cats/shrimpas_01.png",
       "images": [
         {
           "src": "/data/images/section-4-img-0.jpg",
           "alt": "",
-          "rotation": null,
-          "span": null
+          "rotation": null
         },
         {
           "src": "/data/images/section-4-img-1.jpg",
           "alt": "",
-          "rotation": null,
-          "span": null
+          "rotation": "ccw-1"
         },
         {
           "src": "/data/images/section-4-img-2.jpg",
           "alt": "",
-          "rotation": null,
-          "span": null
+          "rotation": "cw-2"
         }
       ]
     },
     {
-      "id": "section-1765933944987",
+      "id": "finale",
       "title": "Here's to an even crazier 2026!",
       "body": null,
       "layout": "hero-bottom",
@@ -151,21 +141,15 @@
       "images": [
         {
           "src": "/data/images/section-5-img-0.jpg",
-          "alt": "",
-          "rotation": null,
-          "span": null
+          "alt": ""
         },
         {
           "src": "/data/images/section-5-img-1.jpg",
-          "alt": "",
-          "rotation": null,
-          "span": null
+          "alt": ""
         },
         {
           "src": "/data/images/section-5-img-2.jpg",
-          "alt": "",
-          "rotation": null,
-          "span": null
+          "alt": ""
         }
       ]
     }

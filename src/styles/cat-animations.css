@@ -104,6 +104,38 @@
 }
 
 /* ==============================================
+   PEEK CENTER
+   Cat peeks up from bottom center
+   ============================================== */
+
+[data-cat-animation="peek-center"] .cat-container {
+  bottom: var(--cat-zone-bottom);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+[data-cat-animation="peek-center"] .cat {
+  max-width: var(--cat-size-medium);
+  opacity: 0;
+  transform: translateY(50%);
+}
+
+[data-cat-animation="peek-center"] .cat-container.is-visible .cat {
+  animation: cat-peekUpCenter 1s var(--timing-cat-easing) 0.5s forwards;
+}
+
+@keyframes cat-peekUpCenter {
+  0% {
+    opacity: 0;
+    transform: translateY(50%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==============================================
    SLEEP CORNER
    Cat sleeping in bottom-left corner
    ============================================== */
@@ -135,6 +167,38 @@
 }
 
 /* ==============================================
+   SLEEP CENTER
+   Cat sleeping at bottom center
+   ============================================== */
+
+[data-cat-animation="sleep-center"] .cat-container {
+  bottom: var(--cat-zone-bottom);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+[data-cat-animation="sleep-center"] .cat {
+  max-width: var(--cat-size-medium);
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+[data-cat-animation="sleep-center"] .cat-container.is-visible .cat {
+  animation: cat-fadeInSleepyCenter 1.2s var(--timing-gentle-easing) 0.3s forwards;
+}
+
+@keyframes cat-fadeInSleepyCenter {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ==============================================
    POP UP
    Cat pops up from bottom-right
    ============================================== */
@@ -162,6 +226,64 @@
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+/* ==============================================
+   POP UP CENTER
+   Cat pops up from bottom center
+   ============================================== */
+
+[data-cat-animation="pop-up-center"] .cat-container {
+  bottom: var(--cat-zone-bottom);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+[data-cat-animation="pop-up-center"] .cat {
+  max-width: var(--cat-size-medium);
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+}
+
+[data-cat-animation="pop-up-center"] .cat-container.is-visible .cat {
+  animation: cat-popUp 0.8s var(--timing-cat-easing) 0.5s forwards;
+}
+
+/* ==============================================
+   CENTER MIDDLE
+   Cat appears in the true center of the card
+   ============================================== */
+
+[data-cat-animation="center-middle"] .cat-container {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  bottom: auto;
+}
+
+[data-cat-animation="center-middle"] .cat {
+  max-width: var(--cat-size-medium);
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+[data-cat-animation="center-middle"] .cat-container.is-visible .cat {
+  animation: cat-centerAppear 0.8s var(--timing-cat-easing) 0.5s forwards;
+}
+
+@keyframes cat-centerAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 

@@ -5,7 +5,6 @@
  * Generates a config object and renders a live preview.
  */
 
-import { defaultConfig } from './cardConfig.js';
 import { compressImage, uploadToCloudinary, isCloudinaryConfigured } from './builder/imageUtils.js';
 import { renderSectionForms } from './builder/formRenderer.js';
 import {
@@ -17,8 +16,8 @@ import {
   setActiveSectionIndex
 } from './builder/previewManager.js';
 
-// Clone the default config as our working copy
-let currentConfig = JSON.parse(JSON.stringify(defaultConfig));
+// Working config - loaded from card-config.json
+let currentConfig = null;
 
 // DOM elements
 const form = document.getElementById('builder-form');
@@ -36,9 +35,13 @@ let audioControlHandlers = null;
 /**
  * Initialize the builder
  */
-function init() {
+async function init() {
   initPreview(previewIframe);
+
+  // Load config from JSON file, then check URL for overrides
+  await loadConfigFromJson();
   loadConfigFromUrl();
+
   renderSections();
 
   addSectionBtn.addEventListener('click', addSection);
@@ -58,6 +61,28 @@ function init() {
   bindAudioControls();
   bindIntroImageControls();
   updatePreview(currentConfig);
+}
+
+/**
+ * Load config from the card-config.json file
+ */
+async function loadConfigFromJson() {
+  try {
+    const response = await fetch('/data/card-config.json');
+    if (!response.ok) {
+      throw new Error(`Failed to load config: ${response.status}`);
+    }
+    const config = await response.json();
+    currentConfig = JSON.parse(JSON.stringify(config));
+  } catch (err) {
+    console.error('Failed to load card-config.json:', err);
+    // Fall back to a minimal default config
+    currentConfig = {
+      intro: { year: "2025", title: "Happy Holidays!", from: "", tapPrompt: "tap to enter", image: null },
+      audio: { src: null, volume: 0.4 },
+      sections: []
+    };
+  }
 }
 
 /**
