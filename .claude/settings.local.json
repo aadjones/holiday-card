@@ -14,7 +14,15 @@
       "Bash(find:*)",
       "Bash(mv:*)",
       "Bash(cat:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(curl:*)",
+      "Bash(node -e:*)",
+      "Bash(cp:*)",
+      "Bash(vercel --version:*)",
+      "Bash(vercel domains ls:*)",
+      "Bash(vercel project ls:*)"
     ]
   }
 }

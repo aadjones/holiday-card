@@ -186,23 +186,25 @@ function renderImages(section) {
   const layoutClass = section.layout ? `layout-${section.layout}` : '';
 
   const photos = section.images.map((img, index) => {
-    const classes = ['scrapbook-photo'];
+    const wrapperClasses = ['photo-wrapper'];
+    const imgClasses = ['scrapbook-photo'];
 
     // Auto-apply span classes based on layout and position
     const autoSpan = getAutoSpan(section.layout, index);
-    if (autoSpan) classes.push(autoSpan);
+    if (autoSpan) wrapperClasses.push(autoSpan);
 
     // Manual span override from config
-    if (img.span) classes.push(img.span);
-    if (img.rotation) classes.push(`rotate-${img.rotation}`);
+    if (img.span) wrapperClasses.push(img.span);
+    if (img.rotation) imgClasses.push(`rotate-${img.rotation}`);
 
     return `
-      <img
-        src="${escapeHtml(img.src)}"
-        alt="${escapeHtml(img.alt || '')}"
-        class="${classes.join(' ')}"
-        onload="(function(img){var r=img.naturalWidth/img.naturalHeight;img.classList.add(r>1.1?'landscape':r<0.9?'portrait':'square');})(this)"
-      />
+      <div class="${wrapperClasses.join(' ')}">
+        <img
+          src="${escapeHtml(img.src)}"
+          alt="${escapeHtml(img.alt || '')}"
+          class="${imgClasses.join(' ')}"
+        />
+      </div>
     `;
   }).join('\n');
 

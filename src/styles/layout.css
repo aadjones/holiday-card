@@ -256,6 +256,7 @@ body:not(.intro-active) .scroll-hint {
   flex: 1 1 0;
   min-height: 0;
   width: 100%;
+  overflow: hidden;
 
   /* Grid layout - rows use fractions to guarantee fit */
   display: grid;
@@ -266,30 +267,26 @@ body:not(.intro-active) .scroll-hint {
   grid-template-rows: 1fr 1fr;
 }
 
-/* Photo styling within scrapbook */
-.scrapbook-photo {
-  width: 100%;
-  height: 100%;
-  min-height: 0; /* Critical: allows shrinking below content size */
-  object-fit: cover;
+/* Photo wrapper - Safari fix: position relative container */
+.photo-wrapper {
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  min-width: 0;
   border-radius: 6px;
   box-shadow: var(--shadow-medium);
+}
 
-  /* Slight rotation for handmade feel */
+/* Photo styling - position absolute inside wrapper for Safari */
+.scrapbook-photo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
   transition: transform 0.3s ease;
-}
-
-/* Orientation-based aspect ratios - detected on image load */
-.scrapbook-photo.landscape {
-  aspect-ratio: 4 / 3;
-}
-
-.scrapbook-photo.portrait {
-  aspect-ratio: 3 / 4;
-}
-
-.scrapbook-photo.square {
-  aspect-ratio: 1 / 1;
 }
 
 /* Rotation variations - applied via classes */
@@ -298,14 +295,13 @@ body:not(.intro-active) .scroll-hint {
 .scrapbook-photo.rotate-ccw-1 { transform: rotate(-1.5deg); }
 .scrapbook-photo.rotate-ccw-2 { transform: rotate(-2deg); }
 
-/* Hero photo - spans multiple cells */
-.scrapbook-photo.hero {
+/* Hero wrapper - spans multiple cells */
+.photo-wrapper.hero {
   grid-column: span 2;
-  object-fit: contain;
 }
 
-/* Tall photo - for portraits */
-.scrapbook-photo.tall {
+/* Tall wrapper - for portraits */
+.photo-wrapper.tall {
   grid-row: span 2;
 }
 
@@ -341,10 +337,10 @@ body:not(.intro-active) .scroll-hint {
   grid-template-rows: 1fr 1fr;
 }
 
-.scrapbook.layout-trio .scrapbook-photo:first-child {
+.scrapbook.layout-trio .photo-wrapper:first-child {
   grid-column: 1 / -1;
   justify-self: center;
-  max-width: 60%;
+  width: 60%;
 }
 
 /* Stack: 2 landscape images stacked vertically */
