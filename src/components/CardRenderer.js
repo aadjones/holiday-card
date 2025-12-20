@@ -116,6 +116,7 @@ function renderIntroOverlay(intro) {
         <h1 class="intro-title">${escapeHtml(intro.title)}</h1>
         <p class="intro-from">${escapeHtml(intro.from)}</p>
         <p class="intro-tap">${escapeHtml(intro.tapPrompt || 'tap to enter')}</p>
+        <p class="intro-audio-hint">best with sound</p>
       </div>
     </div>
   `;

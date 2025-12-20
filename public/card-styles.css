@@ -206,6 +206,14 @@ body.intro-active {
   50% { opacity: 1; }
 }
 
+.intro-audio-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.1em;
+  margin-top: var(--spacing-sm);
+  opacity: 0.7;
+}
+
 /* Scroll Hint */
 .scroll-hint {
   position: absolute;
@@ -273,6 +281,7 @@ body:not(.intro-active) .scroll-hint {
   gap: var(--spacing-md);
   height: calc(100vh - var(--section-padding) * 2);
   height: calc(100dvh - var(--section-padding) * 2);
+  overflow: hidden;
 }
 
 .section-title {
@@ -309,6 +318,7 @@ body:not(.intro-active) .scroll-hint {
   /* Fill available space between title and body */
   flex: 1 1 0;
   min-height: 0;
+  max-height: 100%;
   width: 100%;
   overflow: hidden;
   display: grid;
@@ -334,7 +344,7 @@ body:not(.intro-active) .scroll-hint {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 6px;
   transition: transform 0.3s ease;
 }
@@ -357,13 +367,13 @@ body:not(.intro-active) .scroll-hint {
 /* Hero top: wide image on top, 2 side-by-side below */
 .scrapbook.layout-hero-top {
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
 }
 
 /* Hero bottom: 2 side-by-side on top, wide image below */
 .scrapbook.layout-hero-bottom {
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 2fr;
+  grid-template-rows: 1fr 1fr;
 }
 
 /* Tall left: portrait spanning both rows on left, 2 stacked on right */
